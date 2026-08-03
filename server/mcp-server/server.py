@@ -218,8 +218,7 @@ def handle_jsonrpc(body):
         return None
     else:
         return {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32601, "message": "Unknown method: " + method}}
-
-class MCPHandler(http.server.BaseHTTPRequestHandler):
+        class MCPHandler(http.server.BaseHTTPRequestHandler):
     
     def do_OPTIONS(self):
         self.send_response(200)
