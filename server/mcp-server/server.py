@@ -291,7 +291,7 @@ def _handle_sse(self):
         self.wfile.write(
             b"event: endpoint\ndata: /message\n\n"
         )
-    self.wfile.flush()
+        self.wfile.flush()
         try:
             while True:
                 time.sleep(30)
