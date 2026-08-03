@@ -233,6 +233,7 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         else:
             self.send_error(404)
     def do_POST(self):
+        print("POST PATH:", self.path, flush=True)
         if self.path.startswith('/mcp') or self.path.startswith('/message'):
             self._handle_mcp()
         else:
