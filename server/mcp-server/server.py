@@ -289,10 +289,9 @@ def _handle_sse(self):
         self.end_headers()
 
         self.wfile.write(
-            b"event: endpoint\ndata: https://netease-music-mcp-sj81.onrender.com/message\n\n"
+            b"event: endpoint\ndata: /message\n\n"
         )
-        self.wfile.flush()
-
+    self.wfile.flush()
         try:
             while True:
                 time.sleep(30)
