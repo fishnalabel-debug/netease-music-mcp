@@ -252,20 +252,25 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         length = int(self.headers.get('Content-Length', 0))
         body = json.loads(self.rfile.read(length)) if length else {}
         method = body.get('method', '')
+        
         if method.startswith('notifications/') or body.get('id') is None:
             self.send_response(204)
             self._cors()
             self.send_header('Mcp-Session-Id', SESSION_ID)
             self.end_headers()
             return
+            
         result = handle_jsonrpc(body)
+        
         if result is None:
             self.send_response(204)
             self._cors()
             self.end_headers()
             return
+            
         self._json_response(result)
-     def _handle_sse(self):
+
+    def _handle_sse(self):
         self.send_response(200)
         self._cors()
         self.send_header('Content-Type', 'text/event-stream')
