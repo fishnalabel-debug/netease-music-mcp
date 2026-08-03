@@ -273,9 +273,16 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         result = handle_jsonrpc(body)
 
         if result is None:
-            self.send_response(204)
+            self.send_response(200)
             self._cors()
+            self.send_header('Content-Type', 'text/event-stream')
+            self.send_header('Mcp-Session-Id', SESSION_ID)
             self.end_headers()
+            
+            self.wfile.write(
+                ("event: message\ndata: " + json.dumps(result) + "\n\n").encode(
+            )
+            self.wfile.flush()
             return
 
         self._json_response(result)
