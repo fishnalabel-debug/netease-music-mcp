@@ -248,11 +248,16 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         self.send_header('Mcp-Session-Id', SESSION_ID)
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
-    def _handle_mcp(self):
-        length = int(self.headers.get('Content-Length', 0))
-        body = json.loads(self.rfile.read(length)) if length else {}
-        print("MCP REQUEST:", body)
-        method = body.get('method', '')
+def _handle_mcp(self):
+    length = int(self.headers.get('Content-Length', 0))
+    raw = self.rfile.read(length)
+
+    print("CONTENT LENGTH:", length, flush=True)
+    print("RAW:", raw, flush=True)
+
+    body = json.loads(raw) if raw else {}
+
+    print("BODY:", body, flush=True)
         
         if method.startswith('notifications/') or body.get('id') is None:
             self.send_response(204)
