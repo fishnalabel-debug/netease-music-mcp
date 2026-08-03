@@ -248,7 +248,7 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         self.send_header('Mcp-Session-Id', SESSION_ID)
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
-def _handle_mcp(self):
+        def _handle_mcp(self):
     length = int(self.headers.get('Content-Length', 0))
     raw = self.rfile.read(length)
 
