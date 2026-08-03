@@ -219,7 +219,7 @@ def handle_jsonrpc(body):
     else:
         return {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32601, "message": "Unknown method: " + method}}
 
-   class MCPHandler(http.server.BaseHTTPRequestHandler):
+class MCPHandler(http.server.BaseHTTPRequestHandler):
 
     def do_OPTIONS(self):
         self.send_response(200)
@@ -265,25 +265,25 @@ def handle_jsonrpc(body):
             self.end_headers()
             return
         self._json_response(result)
-  def _handle_sse(self):
-    self.send_response(200)
-    self._cors()
-    self.send_header('Content-Type', 'text/event-stream')
-    self.send_header('Cache-Control', 'no-cache')
-    self.end_headers()
+     def _handle_sse(self):
+        self.send_response(200)
+        self._cors()
+        self.send_header('Content-Type', 'text/event-stream')
+        self.send_header('Cache-Control', 'no-cache')
+        self.end_headers()
 
-   self.wfile.write(
-    b"event: endpoint\ndata: https://netease-music-mcp-sj81.onrender.com/message\n\n"
-)
-    self.wfile.flush()
+        self.wfile.write(
+            b"event: endpoint\ndata: https://netease-music-mcp-sj81.onrender.com/message\n\n"
+        )
+        self.wfile.flush()
 
-    try:
-        while True:
-            time.sleep(30)
-            self.wfile.write(b": keepalive\n\n")
-            self.wfile.flush()
-    except:
-        pass
+        try:
+            while True:
+                time.sleep(30)
+                self.wfile.write(b": keepalive\n\n")
+                self.wfile.flush()
+        except:
+            pass
 
 class ThreadedHTTPServer(HTTPServer):
     def process_request(self, request, client_address):
@@ -302,4 +302,4 @@ if __name__ == '__main__':
     print("NetEase Music MCP v2 on port " + str(PORT))
     print("Tools: " + str(len(TOOLS)))
     server = ThreadedHTTPServer(('0.0.0.0', PORT), MCPHandler)
-server.serve_forever()
+    server.serve_forever()
