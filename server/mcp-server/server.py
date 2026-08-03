@@ -226,12 +226,21 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         self._cors()
         self.end_headers()
     def do_GET(self):
-        if self.path == '/health':
-            self._json_response({"status": "ok", "tools": len(TOOLS)})
-        elif self.path.startswith('/sse'):
-            self._handle_sse()
-        else:
-            self.send_error(404)
+    print("GET PATH:", self.path, flush=True)
+
+    if self.path == '/health':
+        self._json_response({"status": "ok", "tools": len(TOOLS)})
+
+    elif self.path.startswith('/sse'):
+        self.send_response(200)
+        self._cors()
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(b"SSE TEST OK")
+        self.wfile.flush()
+
+    else:
+        self.send_error(404)
     def do_POST(self):
         print("POST PATH:", self.path, flush=True)
         if self.path.startswith('/mcp') or self.path.startswith('/message'):
