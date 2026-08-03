@@ -251,6 +251,7 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
     def _handle_mcp(self):
         length = int(self.headers.get('Content-Length', 0))
         body = json.loads(self.rfile.read(length)) if length else {}
+        print("MCP REQUEST:", body)
         method = body.get('method', '')
         
         if method.startswith('notifications/') or body.get('id') is None:
