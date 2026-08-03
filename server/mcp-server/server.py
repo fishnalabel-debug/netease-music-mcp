@@ -275,13 +275,12 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
             return
 
         result = handle_jsonrpc(body)
-
         if result is None:
-    self.send_response(204)
-    self._cors()
-    self.send_header('Mcp-Session-Id', SESSION_ID)
-    self.end_headers()
-    return
+            self.send_response(204)
+            self._cors()
+            self.send_header('Mcp-Session-Id', SESSION_ID)
+            self.end_headers()
+            return
     
     print("RESPONSE:", result, flush=True)
     self._json_response(result)
