@@ -249,30 +249,28 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         self.send_header('Mcp-Session-Id', SESSION_ID)
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
-        def _handle_mcp(self):
-            length = int(self.headers.get('Content-Length', 0))
-            raw = self.rfile.read(length)
-            print("CONTENT LENGTH:", length, flush=True)
-            print("RAW:", raw, flush=True)
-            body = json.loads(raw) if raw else {}
-            print("BODY:", body, flush=True)
-        
-        if method.startswith('notifications/') or body.get('id') is None:
-            self.send_response(204)
-            self._cors()
-            self.send_header('Mcp-Session-Id', SESSION_ID)
-            self.end_headers()
-            return
-            
-        result = handle_jsonrpc(body)
-        
-        if result is None:
-            self.send_response(204)
-            self._cors()
-            self.end_headers()
-            return
-            
-        self._json_response(result)
+            def _handle_mcp(self):
+                length = int(self.headers.get('Content-Length', 0))
+                raw = self.rfile.read(length)
+                print("CONTENT LENGTH:", length, flush=True)
+                print("RAW:", raw, flush=True)
+                body = json.loads(raw) if raw else {}
+                print("BODY:", body, flush=True)
+                method = body.get('method', '')
+                req_id = body.get('id')
+                if method.startswith('notifications/') or body.get('id') is None:
+                    self.send_response(204)
+                    self._cors()
+                    self.send_header('Mcp-Session-Id', SESSION_ID)
+                    self.end_headers()
+                    return
+                    result = handle_jsonrpc(body)
+                    if result is None:
+                        self.send_response(204)
+                        self._cors()
+                        self.end_headers()
+                        return
+                        self._json_response(result)
 
     def _handle_sse(self):
         self.send_response(200)
