@@ -219,7 +219,7 @@ def handle_jsonrpc(body):
     else:
         return {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32601, "message": "Unknown method: " + method}}
 
-class MCPHandler(http.server.BaseHTTPRequestHandler):
+    sclass MCPHandler(http.server.BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(200)
         self._cors()
@@ -270,7 +270,9 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'text/event-stream')
         self.send_header('Cache-Control', 'no-cache')
         self.end_headers()
-        self.wfile.write(b"event: endpoint\ndata: /message\n\n")
+       self.wfile.write(
+    f"event: endpoint\ndata: https://netease-music-mcp-sj81.onrender.com/message\n\n".encode()
+)
         self.wfile.flush()
         try:
             while True:
@@ -299,4 +301,4 @@ if __name__ == '__main__':
     print("NetEase Music MCP v2 on port " + str(PORT))
     print("Tools: " + str(len(TOOLS)))
     server = ThreadedHTTPServer(('0.0.0.0', PORT), MCPHandler)
-    server.serve_forever()
+erver.serve_forever()
