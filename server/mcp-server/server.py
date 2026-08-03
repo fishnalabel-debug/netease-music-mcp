@@ -226,7 +226,7 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         self._cors()
         self.end_headers()
         def do_GET(self):
-            print("GET PATH:", self.path, flush=True)
+    print("!!! MY GET HANDLER !!!", flush=True)
             if self.path == '/health':
                 self._json_response({"status": "ok", "tools": len(TOOLS)})
             elif self.path.startswith('/sse'):
