@@ -225,7 +225,7 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         self.send_response(200)
         self._cors()
         self.end_headers()
-        def do_GET(self):
+    def do_GET(self):
     print("!!! MY GET HANDLER !!!", flush=True)
             if self.path == '/health':
                 self._json_response({"status": "ok", "tools": len(TOOLS)})
