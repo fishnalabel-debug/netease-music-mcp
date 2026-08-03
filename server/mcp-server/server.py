@@ -220,28 +220,26 @@ def handle_jsonrpc(body):
         return {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32601, "message": "Unknown method: " + method}}
 
 class MCPHandler(http.server.BaseHTTPRequestHandler):
-
+    
     def do_OPTIONS(self):
         self.send_response(200)
         self._cors()
         self.end_headers()
-        def do_GET(self):
-            print("!!! MY GET HANDLER !!!", flush=True)
-            if self.path == '/health':
-                self._json_response({"status": "ok", "tools": len(TOOLS)})
-            elif self.path.startswith('/sse'):
-                self.send_response(200)
-                self._cors()
-                self.send_header('Content-Type', 'text/plain')
-                self.end_headers()
-                self.wfile.write(b"SSE TEST OK")
-                self.wfile.flush()
-            else:
-                self.send_error(404)
-    def do_POST(self):
-        print("POST PATH:", self.path, flush=True)
-        if self.path.startswith('/mcp') or self.path.startswith('/message'):
-            self._handle_mcp()
+
+    def do_GET(self):
+        print("!!! MY GET HANDLER !!!", flush=True)
+
+        if self.path == '/health':
+            self._json_response({"status": "ok", "tools": len(TOOLS)})
+
+        elif self.path.startswith('/sse'):
+            self.send_response(200)
+            self._cors()
+            self.send_header('Content-Type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b"SSE TEST OK")
+            self.wfile.flush()
+
         else:
             self.send_error(404)
     def _cors(self):
@@ -279,15 +277,15 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         result = handle_jsonrpc(body)
 
         if result is None:
-            self.send_response(204)
-            self._cors()
-            self.send_header('Mcp-Session-Id', SESSION_ID)
-            self.end_headers()
-            return
-            print("RESPONSE:", result, flush=True)
-
-        self._json_response(result)
-def _handle_sse(self):
+    self.send_response(204)
+    self._cors()
+    self.send_header('Mcp-Session-Id', SESSION_ID)
+    self.end_headers()
+    return
+    
+    print("RESPONSE:", result, flush=True)
+    self._json_response(result)
+    def _handle_sse(self):
         self.send_response(200)
         self._cors()
         self.send_header('Content-Type', 'text/event-stream')
