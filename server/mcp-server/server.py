@@ -292,13 +292,6 @@ def _handle_sse(self):
             b"event: endpoint\ndata: /message\n\n"
         )
         self.wfile.flush()
-        try:
-            while True:
-                time.sleep(30)
-                self.wfile.write(b": keepalive\n\n")
-                self.wfile.flush()
-        except:
-            pass
 
 class ThreadedHTTPServer(HTTPServer):
     def process_request(self, request, client_address):
