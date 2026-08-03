@@ -249,15 +249,12 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
         def _handle_mcp(self):
-    length = int(self.headers.get('Content-Length', 0))
-    raw = self.rfile.read(length)
-
-    print("CONTENT LENGTH:", length, flush=True)
-    print("RAW:", raw, flush=True)
-
-    body = json.loads(raw) if raw else {}
-
-    print("BODY:", body, flush=True)
+            length = int(self.headers.get('Content-Length', 0))
+            raw = self.rfile.read(length)
+            print("CONTENT LENGTH:", length, flush=True)
+            print("RAW:", raw, flush=True)
+            body = json.loads(raw) if raw else {}
+            print("BODY:", body, flush=True)
         
         if method.startswith('notifications/') or body.get('id') is None:
             self.send_response(204)
