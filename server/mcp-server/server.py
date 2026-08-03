@@ -288,10 +288,9 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'text/event-stream')
             self.send_header('Mcp-Session-Id', SESSION_ID)
             self.end_headers()
-
-self.wfile.write(
-    ("event: message\ndata: " + json.dumps(result) + "\n\n").encode()
-)
+            self.wfile.write(
+                ("event: message\ndata: " + json.dumps(result) + "\n\n").encode()
+            )
 self.wfile.flush()
 def _handle_sse(self):
         self.send_response(200)
