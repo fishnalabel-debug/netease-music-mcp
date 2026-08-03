@@ -283,12 +283,11 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
             )
             self.wfile.flush()
             return
-
-        self.send_response(200)
-        self._cors()
-        self.send_header('Content-Type', 'text/event-stream')
-        self.send_header('Mcp-Session-Id', SESSION_ID)
-        self.end_headers()
+            self.send_response(200)
+            self._cors()
+            self.send_header('Content-Type', 'text/event-stream')
+            self.send_header('Mcp-Session-Id', SESSION_ID)
+            self.end_headers()
 
 self.wfile.write(
     ("event: message\ndata: " + json.dumps(result) + "\n\n").encode()
