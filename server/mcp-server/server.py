@@ -293,7 +293,7 @@ self.wfile.write(
     ("event: message\ndata: " + json.dumps(result) + "\n\n").encode()
 )
 self.wfile.flush()
-    def _handle_sse(self):
+def _handle_sse(self):
         self.send_response(200)
         self._cors()
         self.send_header('Content-Type', 'text/event-stream')
