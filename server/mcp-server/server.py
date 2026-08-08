@@ -281,8 +281,8 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             return
     
-    print("RESPONSE:", result, flush=True)
-    self._json_response(result)
+print("RESPONSE:", result, flush=True)
+        self._json_response(result)
     def _handle_sse(self):
         self.send_response(200)
         self._cors()
