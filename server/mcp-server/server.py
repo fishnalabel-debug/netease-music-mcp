@@ -7,7 +7,12 @@ PORT = int(os.environ.get("MCP_PORT", "3456"))
 SESSION_ID = str(uuid.uuid4())
 
 def netease_request(url, data=None):
-    headers = {'User-Agent': 'Mozilla/5.0', 'Referer': 'https://music.163.com/', 'Cookie': NETEASE_COOKIE, 'Content-Type': 'application/x-www-form-urlencoded' if data else 'application/json'}
+    headers = {
+        'User-Agent': 'Mozilla/5.0',
+        'Referer': 'https://music.163.com/',
+        'Cookie': NETEASE_COOKIE,
+        'Content-Type': 'application/x-www-form-urlencoded' if data else 'application/json'
+    }
     if data and isinstance(data, dict):
         data = urllib.parse.urlencode(data).encode()
     elif data and isinstance(data, str):
@@ -218,33 +223,35 @@ def handle_jsonrpc(body):
         return None
     else:
         return {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32601, "message": "Unknown method: " + method}}
+
 class MCPHandler(http.server.BaseHTTPRequestHandler):
-    
+
     def do_OPTIONS(self):
         self.send_response(200)
         self._cors()
         self.end_headers()
 
     def do_GET(self):
-        print("!!! MY GET HANDLER !!!", flush=True)
-
+        print("GET", self.path, flush=True)
         if self.path == '/health':
             self._json_response({"status": "ok", "tools": len(TOOLS)})
-
         elif self.path.startswith('/sse'):
-            self.send_response(200)
-            self._cors()
-            self.send_header('Content-Type', 'text/plain')
-            self.end_headers()
-            self.wfile.write(b"SSE TEST OK")
-            self.wfile.flush()
-
+            self._handle_sse()
         else:
             self.send_error(404)
+
+    def do_POST(self):
+        print("POST PATH:", self.path, flush=True)
+        if self.path == '/message' or self.path == '/mcp':
+            self._handle_mcp()
+        else:
+            self.send_error(404)
+
     def _cors(self):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Headers', '*')
         self.send_header('Access-Control-Allow-Methods', '*')
+
     def _json_response(self, data, status=200):
         self.send_response(status)
         self._cors()
@@ -252,19 +259,17 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         self.send_header('Mcp-Session-Id', SESSION_ID)
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
+
     def _handle_mcp(self):
         length = int(self.headers.get('Content-Length', 0))
         raw = self.rfile.read(length)
-
         print("CONTENT LENGTH:", length, flush=True)
         print("RAW:", raw, flush=True)
 
         body = json.loads(raw) if raw else {}
-
         print("BODY:", body, flush=True)
 
         method = body.get('method', '')
-        req_id = body.get('id')
 
         if method.startswith('notifications/') or body.get('id') is None:
             self.send_response(204)
@@ -280,19 +285,17 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
             self.send_header('Mcp-Session-Id', SESSION_ID)
             self.end_headers()
             return
-    
-    print("RESPONSE:", result, flush=True)
-self._json_response(result)
-def _handle_sse(self):
+
+        print("RESPONSE:", result, flush=True)
+        self._json_response(result)
+
+    def _handle_sse(self):
         self.send_response(200)
         self._cors()
         self.send_header('Content-Type', 'text/event-stream')
         self.send_header('Cache-Control', 'no-cache')
         self.end_headers()
-
-        self.wfile.write(
-            b"event: endpoint\ndata: /message\n\n"
-        )
+        self.wfile.write(b"event: endpoint\ndata: /message\n\n")
         self.wfile.flush()
 
 class ThreadedHTTPServer(HTTPServer):
@@ -300,6 +303,7 @@ class ThreadedHTTPServer(HTTPServer):
         t = threading.Thread(target=self._handle, args=(request, client_address))
         t.daemon = True
         t.start()
+
     def _handle(self, request, client_address):
         try:
             self.finish_request(request, client_address)
@@ -309,7 +313,7 @@ class ThreadedHTTPServer(HTTPServer):
             self.shutdown_request(request)
 
 if __name__ == '__main__':
-    print("NetEase Music MCP v2 on port " + str(PORT))
-    print("Tools: " + str(len(TOOLS)))
+    print("NetEase Music MCP v2 on port " + str(PORT), flush=True)
+    print("Tools: " + str(len(TOOLS)), flush=True)
     server = ThreadedHTTPServer(('0.0.0.0', PORT), MCPHandler)
     server.serve_forever()
