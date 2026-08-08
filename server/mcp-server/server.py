@@ -294,9 +294,17 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         self._cors()
         self.send_header('Content-Type', 'text/event-stream')
         self.send_header('Cache-Control', 'no-cache')
+        self.send_header('Connection', 'keep-alive')
         self.end_headers()
         self.wfile.write(b"event: endpoint\ndata: /message\n\n")
         self.wfile.flush()
+        try:
+            while True:
+                time.sleep(15)
+                self.wfile.write(b": keepalive\n\n")
+                self.wfile.flush()
+        except:
+            pass
 
 class ThreadedHTTPServer(HTTPServer):
     def process_request(self, request, client_address):
