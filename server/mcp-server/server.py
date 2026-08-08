@@ -283,7 +283,7 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
     
 print("RESPONSE:", result, flush=True)
 self._json_response(result)
-    def _handle_sse(self):
+def _handle_sse(self):
         self.send_response(200)
         self._cors()
         self.send_header('Content-Type', 'text/event-stream')
