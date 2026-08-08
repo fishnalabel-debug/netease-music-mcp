@@ -56,16 +56,35 @@ def play_music(query, note=None):
     link = "https://music.163.com/song?id=" + str(song_id)
     return "[music:" + str(song_id) + ":" + name + ":" + artist + ":" + pic_url + "]" + (note or '') + "\n" + link
 
+def update_playlist_description(playlist_id, description):
+    csrf = get_csrf()
+    # 先尝试 /api/playlist/desc/update
+    url = 'https://music.163.com/api/playlist/desc/update?csrf_token=' + csrf
+    data = {'id': str(playlist_id), 'desc': description}
+    resp = netease_request(url, data=data)
+    if resp.get('code') == 200:
+        return "Updated description for playlist " + str(playlist_id)
+    # 如果失败，尝试用 /api/playlist/update 同时传 name
+    url2 = 'https://music.163.com/api/playlist/update?csrf_token=' + csrf
+    data2 = {'id': str(playlist_id), 'desc': description, '/api/playlist/update': ''}
+    resp2 = netease_request(url2, data=data2)
+    if resp2.get('code') == 200:
+        return "Updated description for playlist " + str(playlist_id) + " (via update)"
+    return "Failed: " + resp.get('message', resp.get('error', 'unknown')) + " | " + resp2.get('message', resp2.get('error', 'unknown'))
+
 def create_playlist(name, description='', privacy=0):
     csrf = get_csrf()
     url = 'https://music.163.com/api/playlist/create?csrf_token=' + csrf
     data = {'name': name, 'privacy': str(privacy), 'type': 'NORMAL'}
-    if description:
-        data['description'] = description
     resp = netease_request(url, data=data)
     if resp.get('code') == 200:
         pl = resp.get('playlist', {})
-        return "Created playlist '" + name + "' (ID: " + str(pl.get('id')) + ")"
+        pl_id = pl.get('id')
+        result = "Created playlist '" + name + "' (ID: " + str(pl_id) + ")"
+        if description and pl_id:
+            desc_result = update_playlist_description(pl_id, description)
+            result += " | Description: " + desc_result
+        return result
     return "Failed: " + resp.get('message', resp.get('error', 'unknown'))
 
 def add_to_playlist(playlist_id, song_ids):
@@ -179,6 +198,7 @@ def daily_recommend():
 TOOLS = [
     {"name": "play_music", "description": "Search and play a song from NetEase Cloud Music.", "inputSchema": {"type": "object", "properties": {"query": {"type": "string", "description": "Search query"}, "note": {"type": "string", "description": "Optional note"}}, "required": ["query"]}},
     {"name": "create_playlist", "description": "Create a new playlist in NetEase account.", "inputSchema": {"type": "object", "properties": {"name": {"type": "string", "description": "Playlist name"}, "description": {"type": "string", "description": "Description"}, "privacy": {"type": "integer", "description": "0=public, 10=private"}}, "required": ["name"]}},
+    {"name": "update_playlist_description", "description": "Update a playlist's description.", "inputSchema": {"type": "object", "properties": {"playlist_id": {"type": "integer", "description": "Playlist ID"}, "description": {"type": "string", "description": "New description text"}}, "required": ["playlist_id", "description"]}},
     {"name": "add_to_playlist", "description": "Add song(s) to a playlist.", "inputSchema": {"type": "object", "properties": {"playlist_id": {"type": "integer", "description": "Playlist ID"}, "song_ids": {"type": "string", "description": "Song ID(s), comma-separated"}}, "required": ["playlist_id", "song_ids"]}},
     {"name": "remove_from_playlist", "description": "Remove song(s) from a playlist.", "inputSchema": {"type": "object", "properties": {"playlist_id": {"type": "integer", "description": "Playlist ID"}, "song_ids": {"type": "string", "description": "Song ID(s) to remove"}}, "required": ["playlist_id", "song_ids"]}},
     {"name": "list_my_playlists", "description": "List all playlists of the logged-in user.", "inputSchema": {"type": "object", "properties": {}}},
@@ -202,6 +222,8 @@ def handle_jsonrpc(body):
             text = play_music(args.get('query', ''), args.get('note'))
         elif name == 'create_playlist':
             text = create_playlist(args.get('name', ''), args.get('description', ''), args.get('privacy', 0))
+        elif name == 'update_playlist_description':
+            text = update_playlist_description(args.get('playlist_id'), args.get('description', ''))
         elif name == 'add_to_playlist':
             text = add_to_playlist(args.get('playlist_id'), args.get('song_ids', ''))
         elif name == 'remove_from_playlist':
